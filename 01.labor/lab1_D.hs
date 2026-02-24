@@ -1,3 +1,4 @@
+import Language.Haskell.TH (prim)
 -- - I. Könyvtárfüggvények használata nélkül, definiáljuk azt a függvényt, amely meghatározza
 
 -- - két szám összegét, különbségét, szorzatát, hányadosát, osztási maradékát,
@@ -122,15 +123,77 @@ fakt3 res n
 -- II. Könyvtárfüggvények használata nélkül, illetve halmazkifejezéseket alkalmazva, definiáljuk azt a függvényt, amely meghatározza:
 
 -- - az első n természetes szám negyzetgyökét,
+negyzetgyokN n = [ sqrt i | i <- [1..n] ]
+
 -- - az első n négyzetszámot,
+negyzetN :: (Enum a, Floating a) => a -> [a]
+negyzetN n = [i * i | i <- [1 .. n]]
+
 -- - az első n természetes szám köbét,
+kobN n = [i ^ 3 | i <- [1 .. n]]
+
 -- - az első n olyan természetes számot, amelyben nem szerepelnek a négyzetszámok,
+nemNegyzetN n = [ i | i <- [1..n], (sqrt i * sqrt i) /= i]
+
 -- - x hatványait adott n-ig,
+xhatvanyN x n = [x ^ i | i <- [1 .. n]]
+
 -- - egy szám páros osztóinak listáját,
+osztokN n = [i | i <-[1 .. n], mod i 2 == 0, n `mod` i == 0]
+
+osztokN2 n = [i | i <- [2, 4 .. n], mod n i == 0]
+
 -- - n-ig a prímszámok listáját,
+osztok n = [i | i <-[1 .. n], mod n i == 0]
+
+primszam n = osztok n == [1, n]
+
+primszamokN n = [i | i <- [2..n], primszam i == True]
+
+primszamokN2 n = [i | i <- [2..n], primszamL i]
+    where
+        primszamL n = osztokL n == [1, n]
+        osztokL n = [i | i <- [1..n], mod n i == 0]
+
 -- - n-ig az összetett számok listáját,
+osszetettN n = [i | i <- [0..n], not (primszam i)]
+
 -- - n-ig a páratlan összetett számok listáját,
+paratlanOsszetettN n = [i | i <- [0..n], not (primszam i), mod i 2 /=0]
+
+paratlanOsszetettN2 n = [i | i <- [3,5..n], not (primszam i)]
+
+
 -- - az n-nél kisebb Pitágorászi számhármasokat,
+pitagorasz n = [(a,b,c) | c <- [1 .. n], b <- [1 .. c], a <- [1 .. b], a**2 + b **2 == c**2]
+
 -- - a következő listát: $$[(\texttt{a},0), (\texttt{b},1),\ldots, (\texttt{z}, 25)]$$,
+betuSzam = zip ['a' .. 'z'] [0 .. 25]
+
 -- - a következő listát: $$[(0, 5), (1, 4), (2, 3), (3, 2), (4, 1), (5, 0)]$$, majd általánosítsuk a feladatot.
+szamok1 = zip [0..5] [5,4..0]
+
+szamok2 n = [(i,n-i) | i <- [0..n]]
+
+szamok3 n = zip [0..n] [n,n-1 ..0]
+
 -- - azt a listát, ami felváltva tartalmaz True és False értékeket.
+tfLs n = take n ls
+    where
+        ls = [True, False] ++ ls
+
+
+main :: IO()
+main = do
+    putStrLn "x hatvany n"
+    print(xhatvanyN 5 3)
+    putStrLn "paros osztok 48"
+    print (osztokN 48)
+    putStrLn "n-ig a páratlan összetett számok listája"
+    print (paratlanOsszetettN 30)
+    putStrLn ("az n-nél kisebb Pitágorászi számhármasok" ++ show (pitagorasz 100))
+    print betuSzam
+    print szamok1
+    print (szamok2 10)
+    print (szamok3 10)
+    putStrLn ("5 True,False: " ++ show(tfLs 5))
